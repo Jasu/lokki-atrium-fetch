@@ -8,7 +8,7 @@ import subprocess
 
 import oauthlib.oauth1
 
-from atrium_fetch.util import dieIf
+from atrium_fetch.util import dieIf, expandEnvironmentVariables
 from atrium_fetch.db.profile import Profile
 from atrium_fetch.db.setting import Setting
 
@@ -40,7 +40,7 @@ def _request(connection, url, headers, body):
 
 def _invokeLokki(profile, commandLine, isJson=True):
   env = os.environ.copy()
-  env['LK_DB_PATH'] = profile.lokki_db
+  env['LK_DB_PATH'] = expandEnvironmentVariables(profile.lokki_db)
   output = subprocess.check_output(commandLine, env=env).decode('utf-8')
   if isJson:
     return json.loads(output)
@@ -55,9 +55,11 @@ def _createInvoice(profile):
     '--json',
   ])
 
-  dieIf('invoice_number' not in result, 'Failed to create invoice.')
+  dieIf('invoice' not in result, 'Failed to create invoice.')
+  dieIf('invoice_number' not in result['invoice'], 'Failed to create invoice.')
 
-  return result['invoice_number']
+  return result['invoice']['invoice_number']
+
 
 def _addCompositeRow(profile, invoiceNumber, title):
   result = _invokeLokki(profile, [
