@@ -38,9 +38,10 @@ def _request(connection, url, headers, body):
     + response.reason)
   return response.read().decode('utf-8')
 
-def _invokeLokki(profile, commandLine, isJson=True):
+def _invokeLokki(profile, commandLine, isJson=True, overrideDb=None):
   env = os.environ.copy()
-  env['LK_DB_PATH'] = expandEnvironmentVariables(profile.lokki_db)
+  env['LK_DB_PATH'] = expandEnvironmentVariables(
+          overrideDb if overrideDb else profile.lokki_db)
   output = subprocess.check_output(commandLine, env=env).decode('utf-8')
   if isJson:
     return json.loads(output)
@@ -127,7 +128,12 @@ def _getAddedSubrows(profile):
     'atrium-fetch',
   ]
 
-  return _invokeLokki(profile, cmd)
+  result = _invokeLokki(profile, cmd)
+
+  if profile.additional_lokki_db:
+    result.update(_invokeLokki(profile, cmd, True, profile.additional_lokki_db))
+ 
+  return result
 
 
 def commandFetch(args, session):

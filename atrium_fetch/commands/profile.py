@@ -37,12 +37,33 @@ def commandProfileGet(args, session):
 def commandProfileList(args, session):
   profiles = session.query(Profile).order_by(Profile.handle)
 
-  table = PrettyTable(['Handle', 'Database'])
+  table = PrettyTable([
+      'Handle',
+      'Database',
+      'Endpoint',
+      'View name',
+      'Display name',
+      'Price per hour',
+      'Additional database',
+      ])
+
   table.align['Handle'] = 'r'
   table.align['Database'] = 'l'
+  table.align['Endpoint'] = 'l'
+  table.align['View name'] = 'l'
+  table.align['Display name'] = 'l'
+  table.align['Price per hour'] = 'l'
+  table.align['Additional database'] = 'l'
 
   for profile in profiles:
-    table.add_row([profile.handle, profile.lokki_db])
+    table.add_row([profile.handle, 
+                   profile.lokki_db, 
+                   profile.endpoint, 
+                   profile.view_name,
+                   profile.display_name,
+                   profile.price_per_hour,
+                   profile.additional_lokki_db,
+        ])
 
   print(table)
     

@@ -18,3 +18,5 @@ class Profile(Base):
   view_name = Column(String(255))
   display_name = Column(String(255))
 
+  additional_lokki_db = Column(String(255))
+
